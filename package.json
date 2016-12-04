@@ -1,18 +1,16 @@
 {
   "name": "baconjs-router",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Bacon.js page router",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist/",
     "lint-js": "eslint index.js",
     "make-dist-dir": "mkdirp dist/",
-
     "example": "npm-run-all build serve",
     "build": "npm-run-all clean lint-js make-dist-dir build-js",
     "build-js": "browserify --debug --standalone baconjsRouter -e index.js -o dist/baconjs-router.js",
     "serve": "http-server -o -c 1 -a localhost -p 8081",
-
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

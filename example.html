@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+    <script src="../dist/baconjs-router.js"></script>
+    <script src="../node_modules/baconjs/dist/Bacon.min.js"></script>
+
+    <ol class="menu">
+        <li>
+            <a href="/">Home</a>
+        </li>
+        <li>
+            <a href="/about">About</a>
+        </li>
+        <li>
+            <a href="/user/1234">User 1234</a>
+        </li>
+
+        <li>
+            <a href="/not-exist">404</a>
+        </li>
+    </ol>
+
+    <div style="padding: 10px; border: solid 1px #ccc;">
+        <h5>What Happened</h5>
+        <div class="what-happened">
+        </div>
+    </div>
+
+    <script>
+    /* eslint-disable no-undef */
+    // Weird import for standalone in browserify + es6 modules. Entire package
+    // is the
+
+    // For this example, baconjsRouter var. We touch either default (for the main router)
+    // or the specific function getBaconRouterHistoryBus to get something to push to.
+
+    var whatHappenedContainer = document.querySelector('.what-happened');
+    var menuItems = [].slice.call(document.querySelectorAll('.menu li a'));
+
+    var baseUrl = window.location.origin + window.location.pathname + '#';
+    var path = window.location.hash.replace('#', '');
+
+    console.log('Current baseUrl', baseUrl);
+    console.log('Current path', path);
+
+    var router = baconjsRouter.default(
+        baseUrl,
+        path,
+
+        '/',
+        () => Bacon.later(0, {pageType: 'home'}),
+
+        // Match string
+        '/about',
+        () => Bacon.later(0, {pageType: 'about'}),
+
+        // Match user followed by a number of digits
+        /user\/(\d+)/,
+        (idMatchedFromUrl) => Bacon.later(0, {pageType: 'user', userId: idMatchedFromUrl}),
+
+        // Any other pattern match...
+        // If we don't catch our 404s, we won't hear it on a stream.
+        /./,
+        () => Bacon.later(0, {pageType: '404'})
+    );
+
+    router.onValue((data) => {
+        var newDetail = document.createElement('p');
+
+        newDetail.textContent = JSON.stringify(data);
+        whatHappenedContainer.insertBefore(newDetail, whatHappenedContainer.firstChild);
+    });
+
+    menuItems.forEach((menuItem) => {
+        menuItem.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            console.log('Pushing location path as ', menuItem.getAttribute('href'));
+
+            baconjsRouter.getBaconRouterHistoryBus().push({
+                location: baseUrl + menuItem.getAttribute('href'),
+                title: 'Example: ' + menuItem.textContent
+            });
+        });
+    });
+    </script>
+
+</body>
+</html>

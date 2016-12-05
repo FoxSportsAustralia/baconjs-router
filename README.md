@@ -64,6 +64,10 @@ Depending on the size of the project, if it is small and simple enough the refer
 
 TBC - We have some internal tests, that aren't specifically around the router alone. We'll get to those.
 
+## Branches in GitHub
+
+Moving forward, `develop` will be our main working branch, and while we consider it stable, `master` will always reflect the latest version you'll find on npm packages.
+
 ## Contributors
 
 All the Web Development Team here at Fox Sports Australia.

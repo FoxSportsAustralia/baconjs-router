@@ -29,6 +29,11 @@
     "url": "https://github.com/FoxSportsAustralia/baconjs-router/issues"
   },
   "homepage": "https://github.com/FoxSportsAustralia/baconjs-router#readme",
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
   "dependencies": {
     "lodash": "^4.17.2"
   },

@@ -28,6 +28,10 @@ const routeStream = baconRouter(
 
 Keep in mind that like a Bacon.update or Bacon.when statement, the higher the route, the higher the action priority.  Therefore if you want to match `/user/1234/edit`, it should be in your routes before `/user/1234`, depending how you've written your matches.
 
+Super basic code sample can be found in example.html.
+
+Additionally, here's a more detailed [code example](https://baconjs-router-example-razvcrijaf.now.sh/) compiled by Fed at [https://github.com/fknussel/baconjs-router-example](https://github.com/fknussel/baconjs-router-example). Thanks Fed!
+
 ## Sample
 
 ```

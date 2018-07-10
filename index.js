@@ -37,34 +37,40 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
     let hasReplacedState = false;
 
     const historyBus = getBaconRouterHistoryBus();
-    const history = bacon.update(
-        {
+    const history = historyBus
+        .toProperty({
             location: baseUrl + '/' + initialPath,
             state: null,
             title: null
-        },
+        })
+        .map((historyArgs) => {
+            if (location.indexOf(baseUrl) !== 0) {
+                historyArgs.location = baseUrl + '/' + historyArgs.location;
+            }
 
-        [historyBus], ((previous, newHistory) => newHistory)
-    ).doAction(({state, title, location}) => {
-        if (pauseUpdating || !process || !process.browser) {
-            return;
-        }
+            return historyArgs;
+        })
+        .doAction(({state, title, location}) => {
+            if (pauseUpdating || !process.browser) {
+                return;
+            }
 
-        const thisHistory = { // For first render, history will have no values so take from the window
-            state,
-            title: title || window.document.title,
-            location: location || window.location.href
-        };
+            const thisHistory = { // For first render, history will have no values so take from the window
+                state,
+                title: title || window.document.title,
+                location: location || window.location.href
+            };
 
-        window.document.title = thisHistory.title;
+            window.document.title = thisHistory.title;
 
-        if (hasReplacedState) {
-            window.history.pushState(thisHistory, title, location);
-        } else {
-            window.history.replaceState(thisHistory, title);
-            hasReplacedState = true;
-        }
-    }).skipDuplicates(isEqual);
+            if (hasReplacedState) {
+                window.history.pushState(thisHistory, title, location);
+            } else {
+                window.history.replaceState(thisHistory, title);
+                hasReplacedState = true;
+            }
+        })
+        .skipDuplicates(isEqual);
 
     listenToPopState(historyBus);
 

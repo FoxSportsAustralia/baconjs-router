@@ -140,6 +140,7 @@ export function listenToPopState(historyBus) {
             title:    stateData.title,
             location: stateData.location
         });
+        window.document.title = stateData.title || window.document.title;
 
         setTimeout(() => {
             pauseUpdating = false;

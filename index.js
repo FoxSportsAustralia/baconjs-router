@@ -1,4 +1,5 @@
 import bacon from 'baconjs';
+import pathToRegexp from 'path-to-regexp';
 import tail from 'lodash/tail';
 import noop from 'lodash/noop';
 import isEqual from 'lodash/isEqual';
@@ -80,14 +81,38 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
             route = routesAndReturns[i];
             routeReturns = routesAndReturns[i + 1];
 
-            if (typeof routeReturns != 'function') {
+            if (typeof routeReturns !== 'function') {
                 throw `baconRouter: Unexpected input ${typeof routeReturns} at argument ${i}.
                     Format is <base>, <initialPath>, <route-match>, <route-response-function>, <route-match>...`;
             }
 
-            if (typeof route == 'string') {
-                if (route === currentRoute) {
-                    return routeReturns();
+            if (typeof route === 'string') {
+                const [, path = '', search = '', hash = ''] = /^([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(currentRoute);
+                const keys = [];
+                const regexp = pathToRegexp(route, keys);
+                const matches = regexp.exec(decodeURIComponent(path));
+
+                if (matches) {
+                    const params = keys.reduce((acc, {name}, index) => Object.assign(acc, {[name]: matches[index + 1]}), {});
+                    const query = search
+                        .split('&')
+                        .reduce((acc, search) => {
+                            if (!search) {
+                                return acc;
+                            }
+
+                            const [key, value] = search
+                                .split('=', 2)
+                                .map(decodeURIComponent);
+
+                            if (!key) {
+                                return acc;
+                            }
+
+                            return Object.assign(acc, {[key]: value});
+                        }, {});
+
+                    return routeReturns({params, query, hash});
                 }
             } else if (route instanceof RegExp) {
                 matches = route.exec(currentRoute);
@@ -131,7 +156,14 @@ export function listenToPopState(historyBus) {
     let originalUnload = window.onbeforeunload || noop;
 
     window.onpopstate = ((event) => {
-        const stateData = event.state || {};
+        // If a navigation attempt occurs other than via historyBus, reload the page at the new location.
+        if (!event.state) {
+            event.target.location.reload();
+
+            return;
+        }
+
+        const stateData = event.state;
 
         pauseUpdating = true;
 

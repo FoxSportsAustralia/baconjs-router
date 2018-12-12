@@ -5,6 +5,7 @@
 ## Code Example
 
 ```
+import bacon from 'baconjs';
 import baconjsRouter, {getBaconRouterHistoryBus} from 'baconjs-router';
 
 // For demo purposes, we're going to simply say our baseUrl and current path is based on where you'd view this example using `#` to denote new paths.
@@ -14,11 +15,23 @@ const routeStream = baconRouter(
     window.location.hash.replace('#', ''),
 
     // User ID Match
-    /user\/(\d+)/,
-    (idMatchedFromUrl) => bacon.later(0, {pageType: 'user', userId: idMatchedFromUrl})
+    '/user/:userId',
+    // (path params, query params, hash)
+    ({params, query, hash}) => Bacon.later(0, {
+        pageType: 'user',
+        userId: params.userId,
+        detailed: query.detailed,
+        postCount: query.postCount,
+        section: hash,
+    }),
 
     // /about route, matched purely by string
-    'about', () => bacon.later(0, {pageType: 'about'})
+    '/about',
+    () => bacon.later(0, {pageType: 'about'}),
+
+    // Group ID Match
+    /\/group\/(\d+)/,
+    (groupId) => bacon.later(0, {pageType: 'group', groupId}),
 
     // All other routes are considered 404
     /./,

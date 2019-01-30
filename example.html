@@ -15,7 +15,10 @@
             <a href="/about">About</a>
         </li>
         <li>
-            <a href="/user/1234">User 1234</a>
+            <a href="/user/1234?detailed=false#friends">User 1234</a>
+        </li>
+        <li>
+            <a href="/group/5678">Group 5678</a>
         </li>
 
         <li>
@@ -58,8 +61,17 @@
         () => Bacon.later(0, {pageType: 'about'}),
 
         // Match user followed by a number of digits
-        /user\/(\d+)/,
-        (idMatchedFromUrl) => Bacon.later(0, {pageType: 'user', userId: idMatchedFromUrl}),
+        '/user/:userId',
+        ({params, query, hash}) => Bacon.later(0, {
+            pageType: 'user',
+            userId: params.userId,
+            detailed: query.detailed,
+            postCount: query.postCount,
+            section: hash,
+        }),
+
+        /^\/group\/(\d+)/,
+        (idMatchedFromUrl) => Bacon.later(0, {pageType: 'group', userId: idMatchedFromUrl}),
 
         // Any other pattern match...
         // If we don't catch our 404s, we won't hear it on a stream.

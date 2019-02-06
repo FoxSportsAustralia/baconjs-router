@@ -72,12 +72,22 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
     return history.flatMapLatest((history) => {
         let {location/*, state*/} = history;  // eslint-disable-line spaced-comment
         const currentRoute = location.replace(baseUrl, ''); // @TODO Less hacky.
+        const [, encodedPath = '', search = '', hash = ''] = /^([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(currentRoute);
+
+        let path;
+
+        try {
+            path = decodeURIComponent(encodedPath);
+        } catch (error) {
+            // URL path isn't valid
+            return new bacon.Error('Malformed URL');
+        }
+
         let route, routeReturns;
-        let matches;
 
         // Because the routes and functions are 'paired', loop in increments of 2, first section is a route
         // where the second section is the function to call and return.
-        for (let i = 0; i < routesAndReturns.length; i = i + 2) {
+        for (let i = 0; i < routesAndReturns.length; i += 2) {
             route = routesAndReturns[i];
             routeReturns = routesAndReturns[i + 1];
 
@@ -87,10 +97,9 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
             }
 
             if (typeof route === 'string') {
-                const [, path = '', search = '', hash = ''] = /^([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(currentRoute);
                 const keys = [];
                 const regexp = pathToRegexp(route, keys);
-                const matches = regexp.exec(decodeURIComponent(path));
+                const matches = regexp.exec(path);
 
                 if (matches) {
                     const params = keys.reduce((acc, {name}, index) => Object.assign(acc, {[name]: matches[index + 1]}), {});
@@ -101,21 +110,24 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
                                 return acc;
                             }
 
-                            const [key, value] = search
-                                .split('=', 2)
-                                .map(decodeURIComponent);
+                            let key, value;
 
-                            if (!key) {
+                            try {
+                                [key, value] = search
+                                    .split('=', 2)
+                                    .map(decodeURIComponent);
+                            } catch (error) {
+                                // Ignore malformed query param
                                 return acc;
                             }
 
-                            return Object.assign(acc, {[key]: value});
+                            return key ? Object.assign(acc, {[key]: value}) : acc;
                         }, {});
 
                     return routeReturns({params, query, hash});
                 }
             } else if (route instanceof RegExp) {
-                matches = route.exec(currentRoute);
+                const matches = route.exec(currentRoute);
 
                 if (matches) {
                     return routeReturns(...tail(matches)); // First item is the string that matched, not the capture groups.

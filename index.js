@@ -62,13 +62,13 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
                         path = decodeURIComponent(encodedPath);
                     } catch (error) {
                         // URL path isn't valid
-                        return new bacon.Error({
+                        throw {
                             type: 'baconjs-router.malformed-url',
                             data: {
-                                url: location,
+                                url: location.href,
                             },
                             message: `Malformed URL: ${location}`,
-                        });
+                        };
                     }
                     const matches = regexp.exec(path);
 
@@ -162,10 +162,14 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
         );
 
         for (let i = 0; i < routesAndHandlers.length; ++i) {
-            const [isMatched, value] = routesAndHandlers[i](currentRoute, splitCurrentRoute);
+            try {
+                const [isMatched, value] = routesAndHandlers[i](currentRoute, splitCurrentRoute);
 
-            if (isMatched) {
-                return value;
+                if (isMatched) {
+                    return value;
+                }
+            } catch (error) {
+                return new bacon.Error(error);
             }
         }
 

@@ -71,7 +71,8 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
 
     return history.flatMapLatest((history) => {
         let {location/*, state*/} = history;  // eslint-disable-line spaced-comment
-        const currentRoute = location.replace(baseUrl, ''); // @TODO Less hacky.
+        // @TODO Less hacky.
+        const currentRoute = location.replace(baseUrl, '') || '/'; // Default root path to '/'
         const [, encodedPath = '', search = '', hash = ''] = /^([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(currentRoute);
 
         let path;
@@ -98,7 +99,10 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
 
             if (typeof route === 'string') {
                 const keys = [];
-                const regexp = pathToRegexp(route, keys);
+                const regexp = pathToRegexp(
+                    route || '/', // Default root path to '/'
+                    keys
+                );
                 const matches = regexp.exec(path);
 
                 if (matches) {

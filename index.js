@@ -1,5 +1,6 @@
 import bacon from 'baconjs';
 import pathToRegexp from 'path-to-regexp';
+import chunk from 'lodash/chunk';
 import noop from 'lodash/noop';
 import isEqual from 'lodash/isEqual';
 
@@ -37,16 +38,13 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
     // Because the routes and functions are 'paired', loop in increments of 2, first section is a route
     // where the second section is the function to call and return.
     // Generate [[(currentRoute) => [matches, value]]
-    const routesAndHandlers = routesAndReturns
-        .reduce((acc, routeOrReturn, i) => (
-            i % 2
-                ? [...acc.slice(0, acc.length - 1), [acc[acc.length - 1][0], routeOrReturn]]
-                : [...acc.slice(0, acc.length), [routeOrReturn]]
-        ), [])
+    const routesAndHandlers = chunk(routesAndReturns)
         .map(([route, handler], i) => {
             if (typeof handler !== 'function') {
-                throw `baconRouter: Unexpected input ${typeof handler} at argument ${(i * 2) + 1}.
-                        Format is <base>, <initialPath>, <route-match>, <route-response-function>, <route-match>...`;
+                throw new Error(
+                    `baconRouter: Unexpected input ${typeof handler} at argument ${(i * 2) + 1}. `
+                    + 'Format is <base>, <initialPath>, <route-match>, <route-response-function>, <route-match>...'
+                );
             }
 
             if (typeof route === 'string') {
@@ -61,7 +59,7 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
                     try {
                         path = decodeURIComponent(encodedPath);
                     } catch (error) {
-                        // URL path isn't valid
+                        // URL path isn't valid - caught and wrapped in bacon.Error (below)
                         throw {
                             type: 'baconjs-router.malformed-url',
                             data: {
@@ -111,7 +109,7 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
                     }
                 };
             } else {
-                throw 'baconRouter: Unknown route test method';
+                throw new Error('baconRouter: Unknown route test method');
             }
         });
 

@@ -28,7 +28,7 @@ let historyBus;
  * @param  {String}     baseUrl          Base Path (to be ignored from URL.location)
  * @param  {String}     initialPath      Starting Path (should match one of your routes)
  * @param  {...*}       routesAndReturns (String|Regex, Function, n+) Route + Function to call on match
- * @return {Observable}                  EventStream that returns your matched route stream per route.
+ * @return {bacon.Property}              Property that returns your matched route stream per route.
  */
 export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
     // @TODO BaseUrl, Initial Path, And RoutesAndReturns should be objects.

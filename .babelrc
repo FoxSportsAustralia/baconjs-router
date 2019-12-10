@@ -1,5 +1,14 @@
 {
-  "presets": [
-    "es2015"
-  ]
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "node": "8.5",
+                    "edge": "12",
+                    "safari": "11"
+                }
+            }
+        ]
+    ]
 }

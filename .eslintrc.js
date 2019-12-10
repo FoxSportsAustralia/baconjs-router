@@ -171,7 +171,7 @@ module.exports = {
         "block-spacing": "error",                                                                 //  enforce consistent spacing inside single-line blocks
         "brace-style": ["error", "1tbs", {"allowSingleLine": true}],                              //  enforce consistent brace style for blocks
         "camelcase": ["error", {properties: "never"}],                                            //  enforce camelcase naming convention
-        "comma-dangle": "error",                                                                  //  require or disallow trailing commas
+        "comma-dangle": ["error", "always-multiline"],                                            //  require or disallow trailing commas
         "comma-spacing": "error",                                                                 //  enforce consistent spacing before and after commas
         "comma-style": "error",                                                                   //  enforce consistent comma style
         "computed-property-spacing": "error",                                                     //  enforce consistent spacing inside computed property brackets
@@ -210,7 +210,7 @@ module.exports = {
         "max-params": ["error", 5],                                                               //  enforce a maximum number of parameters in function definitions
         "max-statements-per-line": ["error", {"max": 1}],                                         //  enforce a maximum number of statements allowed per line
         "max-statements": "off",                                                                  //  enforce a maximum number of statements allowed in function blocks
-        "multiline-ternary": ["error", "never"],                                                  //  enforce newlines between operands of ternary expressions
+        "multiline-ternary": "off",                                                               //  enforce newlines between operands of ternary expressions
         "new-cap": "off",                                                                         //  require constructor names to begin with a capital letter
         "new-parens": "error",                                                                    //  require parentheses when invoking a constructor with no arguments
         "newline-after-var": ["error", "always"],                                                 //  require or disallow an empty line after variable declarations
@@ -241,7 +241,7 @@ module.exports = {
         "one-var-declaration-per-line": "off",                                                    //  require or disallow newlines around variable declarations
         "one-var": "off",                                                                         //  enforce variables to be declared either together or separately in functions
         "operator-assignment": "off",                                                             //  require or disallow assignment operator shorthand where possible
-        "operator-linebreak": ["error", "after"],                                                 //  enforce consistent linebreak style for operators
+        "operator-linebreak": ["error", "before"],                                                //  enforce consistent linebreak style for operators
         "padded-blocks": ["error", "never"],                                                      //  require or disallow padding within blocks
         "quote-props": ["error", "consistent-as-needed"],                                         //  require quotes around object literal property names
         "quotes": ["error", "single"],                                                            //  enforce the consistent use of either backticks, double, or single quotes

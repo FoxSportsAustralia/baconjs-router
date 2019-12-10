@@ -35,7 +35,7 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
     // Required next is '404' or missed routes perhaps. Currently the returned stream
     // is just 'nothing', means we won't hit anything.
 
-    let hasReplacedState = false;
+    let hasBaconRouterBooted = false;
 
     const historyBus = getBaconRouterHistoryBus();
     const history = bacon.update(
@@ -46,7 +46,7 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
         },
 
         [historyBus], ((previous, newHistory) => newHistory)
-    ).doAction(({state, title, location}) => {
+    ).doAction(({state, title, location, shouldReplaceState}) => {
         if (pauseUpdating || !process || !process.browser) {
             return;
         }
@@ -59,11 +59,13 @@ export default function baconRouter(baseUrl, initialPath, ...routesAndReturns) {
 
         window.document.title = thisHistory.title;
 
-        if (hasReplacedState) {
+        if (hasBaconRouterBooted && shouldReplaceState) {
+            window.history.replaceState(thisHistory, title, location);
+        } else if (hasBaconRouterBooted) {
             window.history.pushState(thisHistory, title, location);
         } else {
             window.history.replaceState(thisHistory, title);
-            hasReplacedState = true;
+            hasBaconRouterBooted = true;
         }
     }).skipDuplicates(isEqual);
 
